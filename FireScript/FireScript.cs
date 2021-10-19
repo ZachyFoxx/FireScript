@@ -10,6 +10,8 @@ namespace FireScript
         private const int ManageFireTimeout = 50;
         private List<Fire> ActiveFires = new List<Fire>();
         private List<Tuple<CoordinateParticleEffect, Vector3>> SmokeWithoutFire = new List<Tuple<CoordinateParticleEffect, Vector3>>();
+        private readonly Dictionary<int, long> userCommands = new Dictionary<int, long>();
+
         public FireScript()
         {
             TriggerEvent("chat:addSuggestion", "/startfire", "Starts a fire at your location", new[]
@@ -22,10 +24,31 @@ namespace FireScript
             {
                 new { name = "Scale", help = "Magnitude of the smoke (recommended 0.5-5.0)" }
             });
-            EventHandlers["FireScript:StartFireAtPlayer"] += new Action<int,int, int, bool>((int source, int maxFlames, int maxRange, bool explosion) =>
-            {               
-                startFire(source, maxFlames, maxRange, explosion);
-            });
+            EventHandlers["FireScript:StartFireAtPlayer"] += new Action<int, int, int, bool>((int source, int maxFlames, int maxRange, bool explosion) =>
+             {
+
+                 // I dont feel like thinking right now, this looks horrible
+                 // TODO: clean this.
+                 if (userCommands.ContainsKey(source))
+                 {
+                     if (userCommands[source] > DateTime.Now.Ticks - 5000)
+                     {
+                         TriggerEvent("chat:addMessage", new
+                         {
+                             color = new[] { 255, 0, 0 },
+                             args = new[] { "^1", "You cannot execute a command so soon." }
+                         });
+                         return;
+                     }
+                 }
+                 else
+                 {
+                     userCommands.Add(source, DateTime.Now.Ticks);
+                 }
+
+                 updateUserCache(source, DateTime.Now.Ticks);
+                 startFire(source, maxFlames, maxRange, explosion);
+             });
             EventHandlers["FireScript:StopFiresAtPlayer"] += new Action<int>((int source) =>
             {
                 stopFires(true, Players[source].Character.Position);
@@ -37,8 +60,8 @@ namespace FireScript
             EventHandlers["FireScript:StopFireAtPosition"] += new Action<float, float, float>((float x, float y, float z) =>
             {
                 stopFires(true, new Vector3(x, y, z), 3);
-                //Screen.ShowNotification("Fire put out at " + x + y + z);
-            });
+    //Screen.ShowNotification("Fire put out at " + x + y + z);
+});
 
             EventHandlers["FireScript:StartSmokeAtPlayer"] += new Action<int, float>((int source, float scale) =>
             {
@@ -62,6 +85,8 @@ namespace FireScript
             while (true)
             {
                 await Delay(10);
+
+                evictUserCache(); // Expire offline users from cache
                 if ((System.DateTime.Now - timekeeper).TotalMilliseconds > ManageFireTimeout)
                 {
                     timekeeper = DateTime.Now;
@@ -80,7 +105,7 @@ namespace FireScript
                 }
             }
         }
-        
+
         private void stopFires(bool onlyNearbyFires, Vector3 pos, float distance = 35)
         {
             foreach (Fire f in ActiveFires.ToArray())
@@ -97,8 +122,8 @@ namespace FireScript
         {
             Vector3 Pos = Players[source].Character.Position;
             Pos.Z -= 0.87f;
-            if (maxRange > 30) { maxRange = 30; }
-            if (maxFlames > 100) { maxRange = 100; }
+            if (maxRange > 25) { maxRange = 25; }
+            if (maxFlames > 25) { maxRange = 25; }
             Fire f = new Fire(Pos, maxFlames, false, maxRange, explosion);
             ActiveFires.Add(f);
             f.Start();
@@ -119,6 +144,29 @@ namespace FireScript
                 {
                     f.Item1.RemovePTFX();
                     SmokeWithoutFire.Remove(f);
+                }
+            }
+        }
+
+        private void updateUserCache(int user, long time)
+        {
+            if (userCommands.ContainsKey(user))
+            {
+                userCommands[user] = time;
+            }
+            else
+            {
+                userCommands.Add(user, time);
+            }
+        }
+
+        private void evictUserCache()
+        {
+            foreach (int user in userCommands.Keys)
+            {
+                if (Players[user] != null)
+                {
+                    userCommands.Remove(user);
                 }
             }
         }
