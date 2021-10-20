@@ -5,7 +5,6 @@ end)
 
 RegisterCommand('startfire', function(source, args, rawCommand)
 	TriggerClientEvent('FireScript:StartFireAtPlayer', -1, source, tonumber(args[1]), tonumber(args[2]), args[3] == "true")
-	print("starting fire")
 end, false)
 
 RegisterCommand('stopfire', function(source, args, rawCommand)
@@ -33,4 +32,4 @@ RegisterCommand('stopallsmoke', function(source, args, rawCommand)
 	print("stopping all smoke")
 end, false)
 
-print('FireScript by Albo1125 (LUA, C#. FiveM)')
+print('FireScript by Albo1125 and ZachyFoxx (LUA, C#. FiveM)')

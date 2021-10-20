@@ -31,12 +31,12 @@ namespace FireScript
                  // TODO: clean this.
                  if (userCommands.ContainsKey(source))
                  {
-                     if (userCommands[source] > DateTime.Now.Ticks - 5000000)
+                     if (userCommands[source] > DateTime.Now.Ticks - 600000000)
                      {
                          TriggerEvent("chat:addMessage", new
                          {
                              color = new[] { 255, 0, 0 },
-                             args = new[] { "^1", "You cannot execute a command so soon." }
+                             args = new[] { "", "^1You cannot execute a command so soon. You must wait 60 seconds!" }
                          });
                          return;
                      }
@@ -46,8 +46,14 @@ namespace FireScript
                      userCommands.Add(source, DateTime.Now.Ticks);
                  }
 
+                 TriggerEvent("chat:addMessage", new
+                 {
+                     color = new[] { 255, 0, 0 },
+                     args = new[] { "", "starting fire" }
+                 });
                  updateUserCache(source, DateTime.Now.Ticks);
                  startFire(source, maxFlames, maxRange, explosion);
+
              });
             EventHandlers["FireScript:StopFiresAtPlayer"] += new Action<int>((int source) =>
             {
@@ -60,7 +66,6 @@ namespace FireScript
             EventHandlers["FireScript:StopFireAtPosition"] += new Action<float, float, float>((float x, float y, float z) =>
             {
                 stopFires(true, new Vector3(x, y, z), 3);
-    //Screen.ShowNotification("Fire put out at " + x + y + z);
 });
 
             EventHandlers["FireScript:StartSmokeAtPlayer"] += new Action<int, float>((int source, float scale) =>
