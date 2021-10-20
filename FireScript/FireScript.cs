@@ -10,7 +10,7 @@ namespace FireScript
         private const int ManageFireTimeout = 50;
         private List<Fire> ActiveFires = new List<Fire>();
         private List<Tuple<CoordinateParticleEffect, Vector3>> SmokeWithoutFire = new List<Tuple<CoordinateParticleEffect, Vector3>>();
-        private readonly Dictionary<int, long> userCommands = new Dictionary<int, long>();
+        private Dictionary<int, long> userCommands = new Dictionary<int, long>();
 
         public FireScript()
         {
@@ -31,7 +31,7 @@ namespace FireScript
                  // TODO: clean this.
                  if (userCommands.ContainsKey(source))
                  {
-                     if (userCommands[source] > DateTime.Now.Ticks - 5000)
+                     if (userCommands[source] > DateTime.Now.Ticks - 5000000)
                      {
                          TriggerEvent("chat:addMessage", new
                          {
