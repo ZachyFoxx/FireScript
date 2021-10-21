@@ -33,7 +33,7 @@ namespace FireScript
                  {
                      if (userCommands[source] > DateTime.Now.Ticks - 600000000)
                      {
-                         sendNotification("^1You must wait 60 seconds before starting another fire!" );
+                         sendNotification($"~r~You must wait {((600000000 - (DateTime.Now.Ticks - userCommands[source])) / 10000000).ToString("0")} seconds before starting another fire!" );
                          return;
                      }
                  }
@@ -42,41 +42,41 @@ namespace FireScript
                      userCommands.Add(source, DateTime.Now.Ticks);
                  }
 
-                 sendNotification("^2starting fire");
+                 sendNotification("~g~Starting fire...");
                  updateUserCache(source, DateTime.Now.Ticks);
                  startFire(source, maxFlames, maxRange, explosion);
 
              });
             EventHandlers["FireScript:StopFiresAtPlayer"] += new Action<int>((int source) =>
             {
-                sendNotification("^2Stopping all fires at your location...");
+                sendNotification("~g~Stopping all fires at your location...");
                 stopFires(true, Players[source].Character.Position);
             });
             EventHandlers["FireScript:StopAllFires"] += new Action<dynamic>((dynamic res) =>
             {
-                sendNotification("^2Stopping all fires");
+                sendNotification("~r~Stopping all fires...");
                 stopFires(false, Vector3.Zero);
             });
             EventHandlers["FireScript:StopFireAtPosition"] += new Action<float, float, float>((float x, float y, float z) =>
             {
-                sendNotification($"^2Stopping all fires at ^*^1{x}, {y}, {z}^r^2...");
+                sendNotification($"~r~Stopping all fires at ~h~~g~{x}, {y}, {z}~s~~r~...");
                 stopFires(true, new Vector3(x, y, z), 3);
             });
 
             EventHandlers["FireScript:StartSmokeAtPlayer"] += new Action<int, float>((int source, float scale) =>
             {
-                sendNotification("^2Starting smoke...");
+                sendNotification("~g~Starting smoke...");
                 startSmoke(Players[source].Character.Position, scale);
             });
             EventHandlers["FireScript:StopSmokeAtPlayer"] += new Action<int>((int source) =>
             {
-                sendNotification("^2Stopping all smoke at your location...");
+                sendNotification("~g~Stopping all smoke at your location...");
                 stopSmoke(true, Players[source].Character.Position);
             });
 
             EventHandlers["FireScript:StopAllSmoke"] += new Action<dynamic>((dynamic res) =>
             {
-                sendNotification("^2Stopping all smoke...");
+                sendNotification("~g~Stopping all smoke...");
                 stopSmoke(false, Vector3.Zero);
             });
             Main();
@@ -167,7 +167,7 @@ namespace FireScript
         {
             foreach (int user in userCommands.Keys)
             {
-                if (Players[user] != null)
+                if (Players[user] == null)
                 {
                     userCommands.Remove(user);
                 }
@@ -176,7 +176,7 @@ namespace FireScript
 
         private void sendNotification(string message)
         {
-            CitizenFX.Core.UI.Screen.ShowNotification(message);
+            CitizenFX.Core.UI.Screen.ShowNotification(message, false);
         }
     }
 }
