@@ -33,7 +33,7 @@ namespace FireScript
                  {
                      if (userCommands[source] > DateTime.Now.Ticks - 600000000)
                      {
-                         sendNotification($"~r~You must wait {((600000000 - (DateTime.Now.Ticks - userCommands[source])) / 10000000).ToString("0")} seconds before starting another fire!" );
+                         sendNotification($"~r~You must wait {((600000000 - (DateTime.Now.Ticks - userCommands[source])) / 10000000):0} seconds before starting another fire!" );
                          return;
                      }
                  }
@@ -59,7 +59,7 @@ namespace FireScript
             });
             EventHandlers["FireScript:StopFireAtPosition"] += new Action<float, float, float>((float x, float y, float z) =>
             {
-                sendNotification($"~r~Stopping all fires at ~h~~g~{x}, {y}, {z}~s~~r~...");
+                sendNotification($"~r~Stopping all fires at ~h~~g~{x:0}, {y:0}, {z:0}~s~~r~...");
                 stopFires(true, new Vector3(x, y, z), 3);
             });
 
